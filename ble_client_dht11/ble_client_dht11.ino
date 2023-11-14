@@ -22,7 +22,6 @@ BLERemoteCharacteristic* pRemoteChar_3;
 
 DHT dht(DHTPIN, DHTTYPE);
 
-// Callback function for Notify function
 static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic,
                            uint8_t* pData,
                            size_t length,
@@ -37,7 +36,6 @@ static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic,
   }
 }
 
-// Callback function that is called whenever a client is connected or disconnected
 class MyClientCallback : public BLEClientCallbacks {
     void onConnect(BLEClient* pclient) {
       Serial.println("onConnect");
@@ -49,21 +47,16 @@ class MyClientCallback : public BLEClientCallbacks {
     }
 };
 
-// Function that is run whenever the server is connected
 bool connectToServer() {
   Serial.print("Forming a connection to ");
   Serial.println(myDevice->getAddress().toString().c_str());
 
   BLEClient*  pClient  = BLEDevice::createClient();
   Serial.println(" - Created client");
-
-  //pClient->setClientCallbacks(new MyClientCallback());
-
-  // Connect to the remove BLE Server.
+  
   pClient->connect(myDevice);
   Serial.println(" - Connected to server");
 
-  // Obtain a reference to the service we are after in the remote BLE server.
   BLERemoteService* pRemoteService = pClient->getService(serviceUUID);
   if (pRemoteService == nullptr) {
     Serial.print("Failed to find our service UUID: ");
@@ -90,7 +83,6 @@ bool connectToServer() {
   return true;
 }
 
-// Function to chech Characteristic
 bool connectCharacteristic(BLERemoteService* pRemoteService, BLERemoteCharacteristic* l_BLERemoteChar) {
   // Obtain a reference to the characteristic in the service of the remote BLE server.
   if (l_BLERemoteChar == nullptr) {
@@ -106,14 +98,12 @@ bool connectCharacteristic(BLERemoteService* pRemoteService, BLERemoteCharacteri
   return true;
 }
 
-// Scan for BLE servers and find the first one that advertises the service we are looking for.
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     //Called for each advertising BLE server.
     void onResult(BLEAdvertisedDevice advertisedDevice) {
       Serial.print("BLE Advertised Device found: ");
       Serial.println(advertisedDevice.toString().c_str());
 
-      // We have found a device, let us now see if it contains the service we are looking for.
       if (advertisedDevice.haveServiceUUID() && advertisedDevice.isAdvertisingService(serviceUUID)) {
 
         BLEDevice::getScan()->stop();
@@ -121,9 +111,9 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
         doConnect = true;
         doScan = true;
 
-      } // Found our server
-    } // onResult
-}; // MyAdvertisedDeviceCallbacks
+      }
+    }
+};
 
 void setup() {
   Serial.begin(115200);
@@ -132,9 +122,6 @@ void setup() {
   BLEDevice::init("");
   pinMode(LED, OUTPUT);
 
-  // Retrieve a Scanner and set the callback we want to use to be informed when we
-  // have detected a new device.  Specify that we want active scanning and start the
-  // scan to run for 5 seconds.
   BLEScan* pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
   pBLEScan->setInterval(1349);
