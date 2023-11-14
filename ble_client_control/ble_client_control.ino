@@ -43,7 +43,6 @@ class MyClientCallback : public BLEClientCallbacks {
     }
 };
 
-// Function that is run whenever the server is connected
 bool connectToServer() {
   Serial.print("Forming a connection to ");
   Serial.println(myDevice->getAddress().toString().c_str());
@@ -53,11 +52,9 @@ bool connectToServer() {
 
   pClient->setClientCallbacks(new MyClientCallback());
 
-  // Connect to the remove BLE Server.
-  pClient->connect(myDevice);  // if you pass BLEAdvertisedDevice instead of address, it will be recognized type of peer device address (public or private)
+  pClient->connect(myDevice);
   Serial.println(" - Connected to server");
-
-  // Obtain a reference to the service we are after in the remote BLE server.
+  
   BLERemoteService* pRemoteService = pClient->getService(serviceUUID);
   if (pRemoteService == nullptr) {
     Serial.print("Failed to find our service UUID: ");
